@@ -33,7 +33,7 @@ int main() {
     while (run) {
         enum gpiod_line_value read = gpiod_line_request_get_value(request, inp_pin);
         gpiod_line_request_set_value(request, outp_pin, read);
-        usleep(1000);
+        //usleep(1000);
     }
 
     gpiod_line_request_set_value(request, outp_pin, GPIOD_LINE_VALUE_INACTIVE);
