@@ -1,0 +1,10 @@
+Linux:
+    keyra cd ~/.../Project4/P4CAN_pkg
+    svo  scp p4can.deb username@ip:~/ ti til að senda pakka yfir á pi
+
+
+
+Á raspberry pi:
+    sudo apt install ~/p4can.deb
+
+keyrir í terminal með "p4can can0 ...."

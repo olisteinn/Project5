@@ -1,0 +1,7 @@
+Package: P5
+Version: 1.0
+Section: custom
+Priority: optional
+Architecture: all
+Maintainer: Ólafur Steinn Jónsson <olafursj23@ru,is>
+Description: 
