@@ -1,12 +1,13 @@
 #include <gpiod.h>
 #include <signal.h>
+#include <unistd.h>
 volatile sig_atomic_t run = 1;
 void sig_handler(int signo) {
     (void)signo;
     run = 0;
 }
-const unsigned int inp_pin = 15;
-const unsigned int outp_pin = 16;
+const unsigned int inp_pin = 25;
+const unsigned int outp_pin = 17;
 const char* gpiod_label = "P5p1_timerRead";
 
 
