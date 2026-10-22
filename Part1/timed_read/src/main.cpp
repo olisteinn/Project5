@@ -14,10 +14,10 @@ int main() {
     struct gpiod_line_settings *settings = gpiod_line_settings_new();
     struct gpiod_line_config *line_cfg = gpiod_line_config_new();
 
-    // Add input pin (15)
+
     gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_INPUT);
     gpiod_line_config_add_line_settings(line_cfg, &inp_pin, 1, settings);
-    // Add output pin (16), initially LOW (INACTIVE)
+
     gpiod_line_settings_set_direction(settings, GPIOD_LINE_DIRECTION_OUTPUT);
     gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
     gpiod_line_config_add_line_settings(line_cfg, &outp_pin, 1, settings);
@@ -31,8 +31,9 @@ int main() {
     while (run) {
         enum gpiod_line_value read = gpiod_line_request_get_value(request, inp_pin);
         gpiod_line_request_set_value(request, outp_pin, read);
+        usleep(1000);
     }
-    // 6. Cleanup on Ctrl+C
+
     gpiod_line_request_set_value(request, outp_pin, GPIOD_LINE_VALUE_INACTIVE);
     gpiod_line_request_release(request);
     gpiod_chip_close(chip);
