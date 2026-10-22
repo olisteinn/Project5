@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     int16_t ctrlOP;
 
     while(run) {
-        currspeed = kernel encoder call;
+        currspeed = ;// kernel encoder call;
         ctrlOP = ctrl->update(target_speed,currspeed); // ctrlOP = controller output, int16_t 
         bridge.run(ctrlOP);
     }
