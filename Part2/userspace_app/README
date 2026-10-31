@@ -36,6 +36,18 @@ sudo dtoverlay part2_overlay.dtbo
 sudo insmod part2module.ko
 sudo chmod 666 /dev/encoder
 
+sudo dtoverlay pwm-2chan pin=12 func=4 pin2=13 func=4
+echo 0 | sudo tee /sys/class/pwm/pwmchip0/export
+echo 1 | sudo tee /sys/class/pwm/pwmchip0/export
+echo 50000 | sudo tee /sys/class/pwm/pwmchip0/pwm0/period
+echo 50000 | sudo tee /sys/class/pwm/pwmchip0/pwm1/period
+echo 0 | sudo tee /sys/class/pwm/pwmchip0/pwm0/duty_cycle
+echo 0 | sudo tee /sys/class/pwm/pwmchip0/pwm1/duty_cycle
+echo 1 | sudo tee /sys/class/pwm/pwmchip0/pwm0/enable
+echo 1 | sudo tee /sys/class/pwm/pwmchip0/pwm1/enable
+sudo chmod 666 /sys/class/pwm/pwmchip0/pwm0/duty_cycle
+sudo chmod 666 /sys/class/pwm/pwmchip0/pwm1/duty_cycle
+
     3. Keyra í terminal (t.d. 100.0 RPM):
 project5 100.0
 
