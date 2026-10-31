@@ -9,6 +9,7 @@ userspace_app/build/src/main.cpp \
 userspace_app/build/src/drive.cpp \
 userspace_app/build/src/P_controller.cpp \
 userspace_app/build/src/PI_controller.cpp \
+userspace_app/build/src/setpoint_generator.cpp \
 -Iuserspace_app/build/include \
 -Luserspace_app/lib -lgpiod \
 -o userspace_app/deb/usr/local/bin/project5
