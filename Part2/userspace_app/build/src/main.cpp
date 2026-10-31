@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
         currspeed = speed(kernel_read);// reiknar hraða miðað við history struct 
         ctrlOP = ctrl->update(target_speed,currspeed); // ctrlOP = controller output, int16_t 
         bridge.run(ctrlOP); // stillir PWM
-        std::cout << "[" << "Project 5" << "] " << "current speed: " << currspeed << "\n"; // UI fyrir terminal, sýnir actual hraða
+        std::cout << "\r[Project 5] current speed: " << (currspeed / 100.0f) << " RPM      " << std::flush; // UI fyrir terminal, sýnir actual hraða
         usleep(5000);
     }
 
