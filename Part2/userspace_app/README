@@ -1,10 +1,23 @@
 Linux:
-    keyra cd ~/.../Project4/P4CAN_pkg
-    svo  scp p4can.deb username@ip:~/ ti til að senda pakka yfir á pi
+fyrst:
+cd ~/.../Project5/Part2/userspace_app
+    compile:
+mkdir -p deb/usr/local/bin
+zig c++ -target arm-linux-gnueabihf \
+build/src/main.cpp \
+build/src/drive.cpp \
+build/src/P_controller.cpp \
+build/src/PI_controller.cpp \
+-Ibuild/include \
+-L./lib -lgpiod \
+-o deb/usr/local/bin/project5
+dpkg-deb --build deb project5.deb
+    senda á pi: 
+scp project5.deb username@ip:~/username
 
 
 
 Á raspberry pi:
-    sudo apt install ~/p4can.deb
+    sudo apt install ~/project5.deb
 
-keyrir í terminal með "p4can can0 ...."
+keyrir í terminal með "project5 100.0"

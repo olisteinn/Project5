@@ -8,10 +8,10 @@
 #include "drive.h"
 #include "timer.h"
 #include "setpoint_generator.h"
-#include <fcntl.h>
-#include <unistd.h>
 #include <iostream>
 #include <iomanip>
+#include <fcntl.h>  // f. open() and O_RDONLY
+#include <unistd.h> // f. read() and usleep()
 
 #define pwm_rev 33
 #define pwm_fwd 35

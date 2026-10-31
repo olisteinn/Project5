@@ -1,0 +1,18 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2710", "brcm,bcm2835";
+
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            gpio_irq_node: gpio_irq_node {
+                compatible = "custom,gpio-irq-module";
+                enca-gpios = <&gpio 27 0>;
+                encb-gpios <&gpio placeholder 0>;
+                status = "okay";
+            };
+        };
+    };
+};
