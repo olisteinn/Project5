@@ -26,16 +26,19 @@ void Drive::init() {
     gpiod_line_settings_set_output_value(settings, GPIOD_LINE_VALUE_INACTIVE);
     gpiod_line_config_add_line_settings(line_cfg, &sleep_pin, 1, settings);
 
+    // gpiod metadata struct req_cfg
     struct gpiod_request_config *req_cfg = gpiod_request_config_new();
+    // Claima/merkja pinna
     gpiod_request_config_set_consumer(req_cfg, "P5p2_drive");
 
     request = gpiod_chip_request_lines(chip, req_cfg, line_cfg);
 
+    // Hreinsa memory
     gpiod_request_config_free(req_cfg);
     gpiod_line_config_free(line_cfg);
     gpiod_line_settings_free(settings);
 
-    // pwm config:
+    // sysfs pwm:
     fd_duty_fwd = open("/sys/class/pwm/pwmchip0/pwm0/duty_cycle", O_WRONLY);
     fd_duty_rev = open("/sys/class/pwm/pwmchip0/pwm1/duty_cycle", O_WRONLY);
 
@@ -43,11 +46,11 @@ void Drive::init() {
     wake(); // slp pin = hi
 }
 
-void Drive::set_pwm_duty(int fd, uint32_t duty_ns) {
-    if (fd < 0) return;
+void Drive::set_pwm_duty(int fd, uint32_t duty_ns) { // Til að skrifa í linux PWM driver
+    if (fd < 0) return; // error handling, -1 ef fd er ekki opnað
     char buf[16];
     int len = snprintf(buf, sizeof(buf), "%u", duty_ns);
-    write(fd, buf, len);
+    write(fd, buf, len); // skrifa duty cycle í pwm target
 }
 
 void Drive::fwd(uint8_t speed) {

@@ -35,11 +35,11 @@ int16_t rpm; // Reiknuð rpm
 
 
 volatile sig_atomic_t run = 1;
-void sig_handler(int signo) {
+void sig_handler(int signo) { // signal handler, til að stoppa applicationið
     (void)signo;
     run = 0;
 }
-void track(int32_t count) {
+void track(int32_t count) { // Tekið úr encoder.cpp .update()
     history_head++;
     if (history_head >= history_length) {
         history_head=0;
@@ -47,13 +47,12 @@ void track(int32_t count) {
     enc_memory[history_head].timestamps = time_mus();
     enc_memory[history_head].counter_mem = count;
 }
-int16_t speed(void) {
+int16_t speed(void) { // Bara gamla speed(functionið úr encoder.cpp)
     uint8_t head = history_head;
     uint8_t tail = head + 1;
     if (tail >= history_length) {
         tail = 0;
     }
-     //stoppa interrupts til að copya >8 bit vals
     uint32_t new_time = enc_memory[head].timestamps;
     uint32_t old_time = enc_memory[tail].timestamps;
     int8_t delta_pos = enc_memory[head].counter_mem - enc_memory[tail].counter_mem;
@@ -75,12 +74,12 @@ int main(int argc, char** argv) {
     CLI::App app{"Motor controller f project 5"};
     float speed_arg;
 
-    app.add_option("speed",speed_arg,"CAN bus name, i.e. ""can0""")->required();
+    app.add_option("speed",speed_arg,"Set target speed (float)")->required();
     
     CLI11_PARSE(app, argc, argv);
 
-    int enc_fd = open("/dev/encoder", O_RDONLY);
-    int32_t curr_ticks;
+    int enc_fd = open("/dev/encoder", O_RDONLY); // opnar counter kernel module
+    int32_t curr_ticks; // Til að lesa úr kernel module
     
     int16_t target_speed = speed_arg*100;
     int16_t currspeed;
@@ -88,12 +87,13 @@ int main(int argc, char** argv) {
     bridge.init();
 
     while(run) {
-        read(enc_fd, &curr_ticks, sizeof(curr_ticks));
-        track(curr_ticks);
-        currspeed = speed();// kernel encoder call;
+        read(enc_fd, &curr_ticks, sizeof(curr_ticks)); // les counter úr kernel module
+        track(curr_ticks); // updatear history struct með lesnu counter gildi
+        currspeed = speed();// reiknar hraða miðað við history struct 
         ctrlOP = ctrl->update(target_speed,currspeed); // ctrlOP = controller output, int16_t 
-        bridge.run(ctrlOP);
-        usleep(5); // Þarf að laga hafa polling loop og control loop
+        bridge.run(ctrlOP); // stillir PWM
+        std::cout << "[" << "Project 5" << "] " << "current speed: " << currspeed; // UI fyrir terminal, sýnir actual hraða
+        usleep(5);
     }
 
     bridge.sleep();
