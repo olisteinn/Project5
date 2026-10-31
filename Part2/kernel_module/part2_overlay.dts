@@ -1,0 +1,18 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "brcm,bcm2710", "brcm,bcm2835";
+
+    fragment@0 {
+        target-path = "/";
+        __overlay__ {
+            encoder_node: encoder_node {
+                compatible = "custom,encoder-module";
+                enca-gpios = <&gpio 27 0>;
+                encb-gpios = <&gpio 22 0>;
+                status = "okay";
+            };
+        };
+    };
+};

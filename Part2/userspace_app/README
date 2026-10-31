@@ -1,23 +1,44 @@
-Linux:
-fyrst:
-cd ~/.../Project5/Part2/userspace_app
-    compile:
-mkdir -p deb/usr/local/bin
-zig c++ -target arm-linux-gnueabihf \
-build/src/main.cpp \
-build/src/drive.cpp \
-build/src/P_controller.cpp \
-build/src/PI_controller.cpp \
--Ibuild/include \
--L./lib -lgpiod \
--o deb/usr/local/bin/project5
-dpkg-deb --build deb project5.deb
-    senda á pi: 
-scp project5.deb username@ip:~/username
+Linux (á PC):
+    1. Fara í Part2 möppuna:
+cd ~/Desktop/VSCodium_container/Project5/Part2
+
+    2. Compile-a userspace app í .deb:
+mkdir -p userspace_app/deb/usr/local/bin
+zig c++ -target arm-linux-gnueabihf -mcpu=arm1176jzf_s -fno-sanitize=undefined \
+userspace_app/build/src/main.cpp \
+userspace_app/build/src/drive.cpp \
+userspace_app/build/src/P_controller.cpp \
+userspace_app/build/src/PI_controller.cpp \
+-Iuserspace_app/build/include \
+-Luserspace_app/lib -lgpiod \
+-o userspace_app/deb/usr/local/bin/project5
+dpkg-deb --build userspace_app/deb userspace_app/project5.deb
+
+    3. Senda bæði app og kernel module á Pi:
+scp userspace_app/project5.deb username@ip:~/
+scp -r kernel_module username@ip:~/
 
 
+Á Raspberry Pi:
+    1. Installa pakka og græja dependencies (bara gert einu sinni):
+sudo apt update
+sudo apt install ~/project5.deb linux-headers-$(uname -r) device-tree-compiler
 
-Á raspberry pi:
-    sudo apt install ~/project5.deb
+    2. Compile-a og hlaða inn kernel module:
+cd ~/kernel_module
+make
+sudo dtoverlay part2_overlay.dtbo
+sudo insmod part2module.ko
+sudo chmod 666 /dev/encoder
 
-keyrir í terminal með "project5 100.0"
+    3. Keyra í terminal (t.d. 100.0 RPM):
+project5 100.0
+
+
+Pinout (Raspberry Pi Zero 2 W):
+Encoder A (enca):       GPIO 27 - Pin 13    Input (interrupt)
+Encoder B (encb):       GPIO 22 - Pin 15    Input
+Motor PWM Fwd (pwm0):   GPIO 12 - Pin 32    Output (PWM0)
+Motor PWM Rev (pwm1):   GPIO 13 - Pin 33    Output (PWM1)
+Driver Sleep (slp_pin): GPIO 25 - Pin 22    Output (gpiod)
+
