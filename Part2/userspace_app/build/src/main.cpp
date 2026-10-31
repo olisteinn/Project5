@@ -24,8 +24,8 @@ PI_controller PIctrl(Kp_init_PI,Ti_init_PI);
 controller* ctrl = &PIctrl;
 
 // accel limits:
-int16_t accel_limit = 0; // rpm/s
-int16_t dec_limit = 0;   // rpm/s
+int16_t accel_limit = 200; // rpm/s
+int16_t dec_limit = 200;   // rpm/s
 int16_t accel_refrence_speed;
 SetpointGenerator setpoint;
 
