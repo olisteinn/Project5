@@ -9,6 +9,7 @@
 #include "timer.h"
 #include <fcntl.h>  // f. open() and O_RDONLY
 #include <unistd.h> // f. read() and usleep()
+#include <fstream>  // f. CSV logging
 #include "setpoint_generator.h"
 
 #define pwm_rev 13 // pin 33
@@ -45,7 +46,7 @@ void sig_handler(int signo) { // signal handler, til að stoppa applicationið
     run = 0;
 }
 
-int16_t speed(History read_struct[2]) { // Bara gamla speed(functionið úr encoder.cpp)
+int16_t speed(History read_struct[2]) { // Bara gamla speed()functionið úr encoder.cpp
     uint32_t new_time = read_struct[0].timestamps;
     uint32_t old_time = read_struct[1].timestamps;
     int8_t delta_pos = read_struct[0].counter_mem - read_struct[1].counter_mem;
@@ -81,16 +82,26 @@ int main(int argc, char** argv) {
 
     setpoint.reset();
 
+    std::ofstream csv_file("log.csv");
+    csv_file << "dt_us,ref_rpm,actual_rpm\n";
+    uint32_t prev_loop_time = time_mus();
+
     while(run) {
+        uint32_t now_loop_time = time_mus();
+        uint32_t loop_dt = now_loop_time - prev_loop_time;
+        prev_loop_time = now_loop_time;
+
         read(enc_fd, &kernel_read, sizeof(kernel_read)); // les counter úr kernel module
         currspeed = speed(kernel_read);// reiknar hraða miðað við history struct 
         accel_refrence_speed = setpoint.update(target_speed, accel_limit, dec_limit); // nýtt refrence gildi fyrir acceleration limits
         ctrlOP = ctrl->update(accel_refrence_speed, currspeed);  // ctrlOP = controller output, int16_t 
         bridge.run(ctrlOP); // stillir PWM
+        csv_file << loop_dt << "," << (accel_refrence_speed / 100.0f) << "," << (currspeed / 100.0f) << "\n";
         std::cout << "\r[Project 5] current speed: " << (currspeed / 100.0f) << " RPM      " << std::flush; // UI fyrir terminal, sýnir actual hraða
         usleep(5000);
     }
 
+    csv_file.close();
     bridge.sleep();
     return 0;
 }
