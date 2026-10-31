@@ -7,10 +7,17 @@
 #include "PI_controller.h"
 #include "drive.h"
 #include "timer.h"
+#include "setpoint_generator.h"
+#include <fcntl.h>
+#include <unistd.h>
+#include <iostream>
+#include <iomanip>
 
 #define pwm_rev 33
 #define pwm_fwd 35
 #define slp_pin 25
+
+int8_t looptime = 5;
 
 double Kp_init_P = 8.21; // optimal fyrir P controller
 double Kp_init_PI = 7.39; // optimal fyrir PI controller
@@ -18,6 +25,12 @@ double Ti_init_PI = 0.08517; // optimal fyrir PI controller
 P_controller Pctrl(Kp_init_P);
 PI_controller PIctrl(Kp_init_PI,Ti_init_PI);
 controller* ctrl = &PIctrl;
+
+// accel limits:
+int16_t accel_limit = 10; //in rpm/s
+int16_t dec_limit = 10; //in rpm/s
+int16_t accel_refrence_speed; 
+SetpointGenerator setpoint;
 
 Drive bridge(pwm_fwd,pwm_rev,slp_pin);
 
@@ -86,14 +99,17 @@ int main(int argc, char** argv) {
     int16_t ctrlOP;
     bridge.init();
 
+    setpoint.reset();
+
     while(run) {
         read(enc_fd, &curr_ticks, sizeof(curr_ticks)); // les counter úr kernel module
         track(curr_ticks); // updatear history struct með lesnu counter gildi
         currspeed = speed();// reiknar hraða miðað við history struct 
-        ctrlOP = ctrl->update(target_speed,currspeed); // ctrlOP = controller output, int16_t 
+        accel_refrence_speed = setpoint.update(target_speed, accel_limit, dec_limit);
+        ctrlOP = ctrl->update(accel_refrence_speed,currspeed); // ctrlOP = controller output, int16_t 
         bridge.run(ctrlOP); // stillir PWM
-        std::cout << "[" << "Project 5" << "] " << "current speed: " << currspeed; // UI fyrir terminal, sýnir actual hraða
-        usleep(5);
+        std::cout << "[Project 5] ref: " << accel_refrence_speed / 100.0 << " rpm, current speed: " << currspeed / 100.0 << " rpm\n" << std::flush; // UI fyrir terminal, sýnir actual hraða
+        usleep(looptime);
     }
 
     bridge.sleep();
