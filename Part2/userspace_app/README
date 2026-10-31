@@ -4,7 +4,7 @@ cd ~/Desktop/VSCodium_container/Project5/Part2
 
     2. Compile-a userspace app í .deb (64-bit Pi Zero 2 W):
 mkdir -p userspace_app/deb/usr/local/bin
-zig c++ -target aarch64-linux-gnu -mcpu=cortex_a53 -fno-sanitize=undefined \
+zig c++ -target arm-linux-gnueabihf -mcpu=cortex_a53 -fno-sanitize=undefined \
 userspace_app/build/src/main.cpp \
 userspace_app/build/src/drive.cpp \
 userspace_app/build/src/P_controller.cpp \
@@ -14,12 +14,13 @@ userspace_app/build/src/setpoint_generator.cpp \
 -Luserspace_app/lib -lgpiod \
 -o userspace_app/deb/usr/local/bin/project5
 dpkg-deb --build userspace_app/deb userspace_app/project5.deb
+scp userspace_app/project5.deb olafursj23@10.42.0.1:~/
     (Ef 64-bit Pi OS: sækja 64-bit libgpiod.so einu sinni af Pi með:
      scp username@ip:/usr/lib/aarch64-linux-gnu/libgpiod.so userspace_app/lib/
      Ef 32-bit Pi OS á Zero 2 W: nota -target arm-linux-gnueabihf í stað aarch64-linux-gnu)
 
     3. Senda bæði app og kernel module á Pi:
-scp userspace_app/project5.deb username@ip:~/
+scp userspace_app/project5.deb olafursj23@10.42.0.1:~/
 scp -r kernel_module username@ip:~/
 
 
