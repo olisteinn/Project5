@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
         read(enc_fd, &kernel_read, sizeof(kernel_read)); // les counter úr kernel module
         currspeed = speed(kernel_read);// reiknar hraða miðað við history struct 
         accel_refrence_speed = setpoint.update(target_speed, accel_limit, dec_limit); // nýtt refrence gildi fyrir acceleration limits
-        ctrlOP = ctrl->update(accel_refrence_speed, currspeed);  // ctrlOP = controller output, int16_t 
+        ctrlOP = ctrl->update(target_speed, currspeed);  // ctrlOP = controller output, int16_t 
         bridge.run(ctrlOP); // stillir PWM
         csv_file << loop_dt << "," << (accel_refrence_speed / 100.0f) << "," << (currspeed / 100.0f) << "\n";
         std::cout << "\r[Project 5] current speed: " << (currspeed / 100.0f) << " RPM      " << std::flush; // UI fyrir terminal, sýnir actual hraða
