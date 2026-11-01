@@ -3,5 +3,6 @@ Version: 1.8
 Section: custom
 Priority: optional
 Architecture: all
+Depends: build-essential, device-tree-compiler, libgpiod-dev
 Maintainer: Ólafur Steinn Jónsson <olafursj23@ru,is>
 Description: Motor control loop f. rpi

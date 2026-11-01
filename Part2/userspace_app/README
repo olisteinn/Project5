@@ -1,61 +1,6 @@
-Linux (á PC):
-    1. Fara í Part2 möppuna:
-cd ~/Desktop/VSCodium_container/Project5/Part2
-
-    2. Compile-a userspace app í .deb (64-bit Pi Zero 2 W):
-mkdir -p userspace_app/deb/usr/local/bin
-zig c++ -target arm-linux-gnueabihf -mcpu=cortex_a53 -fno-sanitize=undefined \
-userspace_app/build/src/main.cpp \
-userspace_app/build/src/drive.cpp \
-userspace_app/build/src/P_controller.cpp \
-userspace_app/build/src/PI_controller.cpp \
-userspace_app/build/src/setpoint_generator.cpp \
--Iuserspace_app/build/include \
--Luserspace_app/lib -lgpiod \
--o userspace_app/deb/usr/local/bin/project5
-dpkg-deb --build userspace_app/deb userspace_app/project5.deb
-scp userspace_app/project5.deb olafursj23@10.42.0.1:~/
-    (Ef 64-bit Pi OS: sækja 64-bit libgpiod.so einu sinni af Pi með:
-     scp username@ip:/usr/lib/aarch64-linux-gnu/libgpiod.so userspace_app/lib/
-     Ef 32-bit Pi OS á Zero 2 W: nota -target arm-linux-gnueabihf í stað aarch64-linux-gnu)
-
-    3. Senda bæði app og kernel module á Pi:
-scp userspace_app/project5.deb olafursj23@10.42.0.1:~/
-scp -r kernel_module username@ip:~/
-
-
-Á Raspberry Pi:
-    1. Installa pakka og græja dependencies (bara gert einu sinni):
-sudo apt update
-sudo apt install ~/project5.deb linux-headers-$(uname -r) device-tree-compiler
-
-    2. Compile-a og hlaða inn kernel module:
-cd ~/kernel_module
-make
-sudo dtoverlay part2_overlay.dtbo
-sudo insmod part2module.ko
-sudo chmod 666 /dev/encoder
-
-sudo dtoverlay pwm-2chan pin=12 func=4 pin2=13 func=4
-echo 0 | sudo tee /sys/class/pwm/pwmchip0/export
-echo 1 | sudo tee /sys/class/pwm/pwmchip0/export
-echo 50000 | sudo tee /sys/class/pwm/pwmchip0/pwm0/period
-echo 50000 | sudo tee /sys/class/pwm/pwmchip0/pwm1/period
-echo 0 | sudo tee /sys/class/pwm/pwmchip0/pwm0/duty_cycle
-echo 0 | sudo tee /sys/class/pwm/pwmchip0/pwm1/duty_cycle
-echo 1 | sudo tee /sys/class/pwm/pwmchip0/pwm0/enable
-echo 1 | sudo tee /sys/class/pwm/pwmchip0/pwm1/enable
-sudo chmod 666 /sys/class/pwm/pwmchip0/pwm0/duty_cycle
-sudo chmod 666 /sys/class/pwm/pwmchip0/pwm1/duty_cycle
-
-    3. Keyra í terminal (t.d. 100.0 RPM):
-project5 100.0
-
-
-Pinout (Raspberry Pi Zero 2 W):
-Encoder A (enca):       GPIO 27 - Pin 13    Input (interrupt)
-Encoder B (encb):       GPIO 22 - Pin 15    Input
-Motor PWM Fwd (pwm0):   GPIO 12 - Pin 32    Output (PWM0)
-Motor PWM Rev (pwm1):   GPIO 13 - Pin 33    Output (PWM1)
-Driver Sleep (slp_pin): GPIO 25 - Pin 22    Output (gpiod)
-
+Linux:
+    cd .../Project5/Part2
+    ./build_deb.sh
+    scp username@ip:~/project5.deb
+Pi:
+sudo apt install ~/project5.deb

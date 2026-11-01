@@ -1,0 +1,24 @@
+#!/bin/bash
+set -e
+
+cd /usr/src/project5-kernel
+rmmod part2module 2>/dev/null || true
+dtoverlay -r 2>/dev/null || true
+make clean
+make
+dtoverlay part2_overlay.dtbo
+insmod part2module.ko
+chmod 666 /dev/encoder
+
+dtoverlay pwm-2chan pin=12 func=4 pin2=13 func=4 || true
+sleep 0.5
+echo 0 > /sys/class/pwm/pwmchip0/export 2>/dev/null || true
+echo 1 > /sys/class/pwm/pwmchip0/export 2>/dev/null || true
+echo 50000 > /sys/class/pwm/pwmchip0/pwm0/period
+echo 50000 > /sys/class/pwm/pwmchip0/pwm1/period
+echo 0 > /sys/class/pwm/pwmchip0/pwm0/duty_cycle
+echo 0 > /sys/class/pwm/pwmchip0/pwm1/duty_cycle
+echo 1 > /sys/class/pwm/pwmchip0/pwm0/enable
+echo 1 > /sys/class/pwm/pwmchip0/pwm1/enable
+chmod 666 /sys/class/pwm/pwmchip0/pwm0/duty_cycle
+chmod 666 /sys/class/pwm/pwmchip0/pwm1/duty_cycle
